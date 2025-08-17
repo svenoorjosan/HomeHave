@@ -1,0 +1,231 @@
+<%- include('../partials/head') %>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  </head>
+
+  <body class="min-h-screen bg-gradient-to-b from-[#0b1220] via-[#0e1526] to-[#0b1220]">
+    <div id="fx-root" class="pointer-events-none fixed inset-0 z-0"></div>
+
+    <!-- Nav with a little top gap -->
+    <header class="relative z-10 mt-6 md:mt-5">
+      <%- include('../partials/nav') %>
+    </header>
+
+    <!-- Wrapper that we scale as one unit -->
+    <main class="container mx-auto px-4">
+      <div id="cardScaler" class="relative z-10 mx-auto w-full max-w-2xl" style="transform-origin: top center;">
+        <section id="signupCard"
+          class="p-6 md:p-10 bg-slate-400/80 backdrop-blur-xl rounded-2xl shadow-2xl ring-1 ring-slate-200/70">
+          <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-slate-800 text-center">
+            Create Your Account
+          </h1>
+          <div class="mt-4 mb-8 h-px bg-gradient-to-r from-transparent via-slate-500 to-transparent"></div>
+
+          <form action="/signup" method="POST" class="max-w-md mx-auto">
+            <%- include('../partials/errors') %>
+
+              <!-- Name fields -->
+              <div class="flex gap-4 mb-4">
+                <div class="flex-1">
+                  <label for="firstName" class="block text-sm font-medium text-slate-700 mb-1">First Name</label>
+                  <div class="relative group">
+                    <span
+                      class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-indigo-600 transition">
+                      <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" id="firstName" name="firstName" placeholder="John"
+                      value="<%= oldInput.firstName ? oldInput.firstName : '' %>" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200/70 bg-white/80 shadow-sm
+                              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                      required />
+                  </div>
+                </div>
+
+                <div class="flex-1">
+                  <label for="lastName" class="block text-sm font-medium text-slate-700 mb-1">Last Name</label>
+                  <div class="relative group">
+                    <span
+                      class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-indigo-600 transition">
+                      <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" id="lastName" name="lastName"
+                      value="<%= oldInput.lastName ? oldInput.lastName : '' %>" placeholder="Doe"
+                      class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200/70 bg-white/80 shadow-sm
+                              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                <div class="relative group">
+                  <span
+                    class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-indigo-600 transition">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                  <input type="email" id="email" name="email" value="<%= oldInput.email ? oldInput.email : '' %>"
+                    placeholder="your.email@example.com" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200/70 bg-white/80 shadow-sm
+                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    required />
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                <div class="relative group">
+                  <span
+                    class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-indigo-600 transition">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                  <input type="password" id="password" name="password" placeholder="Enter Your Password" class="w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200/70 bg-white/80 shadow-sm
+                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    required />
+                  <button type="button" id="togglePassword"
+                    class="absolute inset-y-0 right-0 px-3 text-slate-400 hover:text-slate-600 transition"
+                    aria-label="Show password">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <label for="confirmPassword" class="block text-sm font-medium text-slate-700 mb-1">Confirm
+                  Password</label>
+                <div class="relative group">
+                  <span
+                    class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-indigo-600 transition">
+                    <i class="fas fa-lock"></i>
+                  </span>
+                  <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Your Password"
+                    class="w-full pl-11 pr-12 py-3 rounded-xl border border-slate-200/70 bg-white/80 shadow-sm
+                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    required />
+                  <button type="button" id="toggleConfirm"
+                    class="absolute inset-y-0 right-0 px-3 text-slate-400 hover:text-slate-600 transition"
+                    aria-label="Show password">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- User type -->
+              <div class="mb-6">
+                <p class="text-sm font-medium text-slate-700 mb-2">I want to register as:</p>
+                <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100/80 rounded-xl ring-1 ring-slate-200">
+                  <label for="guest" class="flex items-center justify-center h-10 rounded-lg text-slate-600
+                     transition shadow-sm cursor-pointer select-none
+                     data-[active=true]:bg-white data-[active=true]:text-indigo-700 data-[active=true]:shadow-md">
+                    <input type="radio" name="userType" value="guest" id="guest" class="sr-only"
+                      <%=oldInput.userType==='guest' ? 'checked' : '' %> />
+                    <span>Guest</span>
+                  </label>
+
+                  <label for="host" class="flex items-center justify-center h-10 rounded-lg text-slate-600
+                     transition shadow-sm cursor-pointer select-none
+                     data-[active=true]:bg-white data-[active=true]:text-indigo-700 data-[active=true]:shadow-md">
+                    <input type="radio" name="userType" value="host" id="host" class="sr-only"
+                      <%=oldInput.userType==='host' ? 'checked' : '' %> />
+                    <span>Host</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Terms -->
+              <div class="mb-7">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input type="checkbox" name="terms" id="terms"
+                    class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" required />
+                  <span class="ml-2 text-slate-700">
+                    I agree to the
+                    <a href="#" class="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">terms and
+                      conditions</a>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Submit -->
+              <button type="submit" class="w-full rounded-xl py-3.5 font-semibold tracking-wide text-white
+                         bg-gradient-to-r from-indigo-600 via-violet-600 to-sky-500
+                         shadow-lg shadow-indigo-600/20
+                         hover:shadow-xl hover:brightness-105 active:translate-y-[1px]
+                         focus:outline-none focus:ring-4 focus:ring-indigo-300 transition">
+                <span>Register</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+              </button>
+
+              <p class="text-center mt-4 text-slate-600">
+                Already have an account?
+                <a href="/login" class="text-indigo-600 hover:text-indigo-700 underline underline-offset-2">Log in</a>
+              </p>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      // Show/hide password buttons
+      const togglePassword = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+      const toggleConfirm = document.getElementById('toggleConfirm');
+      const confirmInput = document.getElementById('confirmPassword');
+      function toggleType(btn, input) {
+        if (!btn || !input) return;
+        btn.addEventListener('click', () => {
+          const isPw = input.getAttribute('type') === 'password';
+          input.setAttribute('type', isPw ? 'text' : 'password');
+          btn.innerHTML = isPw ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+        });
+      }
+      toggleType(togglePassword, passwordInput);
+      toggleType(toggleConfirm, confirmInput);
+
+      // Segmented control UI sync
+      const guest = document.getElementById('guest');
+      const host = document.getElementById('host');
+      const guestLabel = document.querySelector('label[for="guest"]');
+      const hostLabel = document.querySelector('label[for="host"]');
+      function syncUserTypeUI() {
+        guestLabel?.setAttribute('data-active', guest?.checked ? 'true' : 'false');
+        hostLabel?.setAttribute('data-active', host?.checked ? 'true' : 'false');
+      }
+      [guest, host].forEach(el => el && el.addEventListener('change', syncUserTypeUI));
+      syncUserTypeUI();
+
+      // --- Fit the whole card on one screen by scaling the wrapper ---
+      (function fitCard() {
+        const wrapper = document.getElementById('cardScaler');
+        const card = document.getElementById('signupCard');
+        const header = document.querySelector('header');
+
+        function fit() {
+          if (!wrapper || !card) return;
+          // reset scale to measure true height
+          wrapper.style.transform = 'scale(1)';
+
+          const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+          const margin = 24; // breathing room at bottom
+          const available = window.innerHeight - headerBottom - margin;
+
+          const h = card.offsetHeight;
+          const FUDGE = 0.92; // extra 8% shrink (tweak: 0.90 for more, 0.95 for less)
+          const scale = Math.min(1, available / h);
+
+          wrapper.style.transform = `scale(${scale})`;
+          // reserve space so layout height matches the scaled height
+          wrapper.style.height = `${h * scale}px`;
+        }
+
+        window.addEventListener('resize', fit, { passive: true });
+        window.addEventListener('load', fit);
+        requestAnimationFrame(fit);
+      })();
+    </script>
+
+    <!-- React + Babel for JSX starfield -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel" data-presets="env,react" src="/js/Starfield.jsx"></script>
+  </body>
+
+  </html>

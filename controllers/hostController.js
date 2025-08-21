@@ -23,7 +23,7 @@ exports.getEditHome = async (req, res, next) => {
       home,
       pageTitle: 'Edit your Home',
       currentPage: 'host-homes',
-      editing: req.query.editing === 'true',
+      editing: true,               // <— force editing mode
       isLoggedIn: req.isLoggedIn,
       user: req.session.user
     });
@@ -62,17 +62,36 @@ exports.postEditHome = async (req, res, next) => {
   try {
     const { id, houseName, price, location, rating, description } = req.body;
 
+    // Load existing doc so we can delete old Cloudinary assets (optional but tidy)
+    const home = await Home.findById(id);
+    if (!home) return res.status(404).send('Home not found');
+
+    // Base field updates
     const updates = { houseName, price, location, rating, description };
 
     if (req.files?.length) {
-      // append new pictures; use $set if you want to REPLACE instead
-      updates.$push = { images: { $each: req.files.map(f => f.path) } };
+      // OPTIONAL: remove old Cloudinary assets (ignore errors)
+      // This assumes your public IDs are "homehave/<filename>".
+      // If you stored only URLs, we derive the filename from the URL.
+      try {
+        const publicIds = (home.images || []).map(url => {
+          // url = https://res.cloudinary.com/.../upload/v12345/homehave/filename.ext
+          const last = url.split('/').pop() || '';          // filename.ext
+          const base = last.split('.').slice(0, -1).join('.') || last; // filename
+          return `homehave/${base}`;
+        });
+        await Promise.all(publicIds.map(pid => cloudinary.uploader.destroy(pid).catch(() => { })));
+      } catch (_) { }
+
+      // REPLACE the array with the newly uploaded URLs
+      updates.images = req.files.map(f => f.path);
     }
 
-    await Home.findByIdAndUpdate(id, updates, { new: true });
+    await Home.findByIdAndUpdate(id, updates);
     res.redirect('/host/host-home-list');
   } catch (err) { next(err); }
 };
+
 
 /* ---------- POST /delete-home/:homeId ---------- */
 exports.postDeleteHome = async (req, res, next) => {

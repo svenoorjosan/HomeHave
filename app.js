@@ -1,47 +1,36 @@
-// Core
-const fs = require("fs");
+// Core Module
 const path = require("path");
 
-// External
+// External Module
 const express = require("express");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
-const mongoose = require("mongoose");
+const { default: mongoose } = require("mongoose");
 const multer = require("multer");
+const DB_PATH =
+  "mongodb+srv://root:root@completecoding.mqnhhlu.mongodb.net/?retryWrites=true&w=majority&appName=CompleteCoding";
 
-// Local
+//Local Module
 const storeRouter = require("./routes/storeRouter");
 const hostRouter = require("./routes/hostRouter");
 const authRouter = require("./routes/authRouter");
 const rootDir = require("./utils/pathUtil");
 const errorsController = require("./controllers/errors");
 
-// --- ENV ---
-const PORT = process.env.PORT || 3003;               // Render supplies PORT
-const MONGODB_URI = process.env.MONGODB_URI;         // put this in Render env
-const SESSION_SECRET = process.env.SESSION_SECRET;   // put this in Render env
-if (!MONGODB_URI) throw new Error("Missing MONGODB_URI");
-if (!SESSION_SECRET) throw new Error("Missing SESSION_SECRET");
-
-// --- App setup ---
 const app = express();
+
 app.set("view engine", "ejs");
 app.set("views", "views");
+// app.js / server.js
+app.use(express.static("public"));
 
-// Behind a proxy (Render/Koyeb) so secure cookies work in prod
-app.set("trust proxy", 1);
+// app.js / server.js
+app.use(express.static("public"));
 
-// Static files
-app.use(express.static(path.join(rootDir, "public")));
-
-// Ensure uploads directory exists (note: ephemeral on free hosts; see notes below)
-fs.mkdirSync(path.join(rootDir, "uploads"), { recursive: true });
-app.use("/uploads", express.static(path.join(rootDir, "uploads")));
-app.use("/host/uploads", express.static(path.join(rootDir, "uploads")));
-app.use("/homes/uploads", express.static(path.join(rootDir, "uploads")));
-
-// Body + file upload
-app.use(express.urlencoded({ extended: true }));
+const store = new MongoDBStore({
+  uri: DB_PATH,
+  collection: "sessions",
+});
 
 const randomString = (length) => {
   const characters = "abcdefghijklmnopqrstuvwxyz";
@@ -53,67 +42,75 @@ const randomString = (length) => {
 };
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(rootDir, "uploads")),
-  filename: (req, file, cb) => cb(null, `${randomString(10)}-${file.originalname}`),
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, randomString(10) + "-" + file.originalname);
+  },
 });
 
 const fileFilter = (req, file, cb) => {
-  const ok = ["image/png", "image/jpg", "image/jpeg"].includes(file.mimetype);
-  cb(null, ok);
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
 };
 
-app.use(multer({ storage, fileFilter }).single("photo"));
+const multerOptions = {
+  storage,
+  fileFilter,
+};
 
-// Sessions
-const store = new MongoDBStore({
-  uri: MONGODB_URI,
-  collection: "sessions",
-});
+app.use(express.urlencoded());
+
+app.use(express.static(path.join(rootDir, "public")));
+app.use("/uploads", express.static(path.join(rootDir, "uploads")));
+app.use("/host/uploads", express.static(path.join(rootDir, "uploads")));
+app.use("/homes/uploads", express.static(path.join(rootDir, "uploads")));
 
 app.use(
   session({
-    secret: SESSION_SECRET,
+    secret: "KnowledgeGate AI with Complete Coding",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store,
-    cookie: {
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-    },
   })
 );
 
-// Auth flag
 app.use((req, res, next) => {
   req.isLoggedIn = req.session.isLoggedIn;
   next();
 });
 
-// Routes
 app.use(authRouter);
 app.use(storeRouter);
 app.use("/host", (req, res, next) => {
-  if (req.isLoggedIn) return next();
-  return res.redirect("/login");
+  if (req.isLoggedIn) {
+    next();
+  } else {
+    res.redirect("/login");
+  }
 });
 app.use("/host", hostRouter);
 
-// Health check
-app.get("/healthz", (req, res) => res.send("ok"));
-
-// 404
 app.use(errorsController.pageNotFound);
 
-// Start
+const PORT = 3003;
+
 mongoose
-  .connect(MONGODB_URI, { maxPoolSize: 10, serverSelectionTimeoutMS: 5000 })
+  .connect(DB_PATH)
   .then(() => {
     console.log("Connected to Mongo");
     app.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
+      console.log(`Server running on address http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("Error connecting to Mongo:", err);
-    process.exit(1);
+    console.log("Error while connecting to Mongo: ", err);
   });

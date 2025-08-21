@@ -4,10 +4,10 @@
   "private": true,
   "main": "app.js",
   "scripts": {
-    "build": "npx tailwindcss -i ./views/input.css -o ./public/output.css --minify",
+    "build": "tailwindcss -i ./views/input.css -o ./public/output.css --minify",
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "tailwind:watch": "npx tailwindcss -i ./views/input.css -o ./public/output.css --watch"
+    "tailwind:watch": "tailwindcss -i ./views/input.css -o ./public/output.css --watch"
   },
   "engines": {
     "node": "20.x"

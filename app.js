@@ -99,6 +99,8 @@ app.use("/host", (req, res, next) => {
 });
 app.use("/host", hostRouter);
 
+app.get("/healthz", (req, res) => res.send("ok"));
+
 app.use(errorsController.pageNotFound);
 
 const PORT = 3003;

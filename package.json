@@ -26,9 +26,9 @@
     "multer": "^1.4.5-lts.2"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.21",
     "nodemon": "^3.1.7",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13"
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
   }
 }
